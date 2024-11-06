@@ -52,7 +52,7 @@ class Recipe(db.Model):
     calificacion = db.relationship('Calificacion', backref='recipe')
 
     def __repr__(self):
-        return f'<Recipe {self.title}>'
+        return f'<User {self.title}'
     
     def serialize(self):
         return {
@@ -72,8 +72,6 @@ class Administrador(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
-
-    recommended_recipes = db.relationship('RecommendedRecipe', backref='admin', lazy=True)
 
     def __repr__ (self):
         return f'<Administrador {self.email}>'
@@ -151,24 +149,3 @@ class Calificacion(db.Model):
             "recipe_id": self.recipe_id,  
             "qualification": self.qualification,
         } 
- 
-    
-class RecommendedRecipe(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    admin_id = db.Column(db.Integer, db.ForeignKey('administrador.id'), nullable=False)
-    recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id'), nullable=False)
-    # Opcional: evitar recomendaciones duplicadas
-    __table_args__ = (db.UniqueConstraint('admin_id', 'recipe_id', name='_admin_recipe_recommendation_uc'),)
-
-    recipe = db.relationship('Recipe', backref='recommended_by')
-
-    def __repr__(self):
-        return f'<RecommendedRecipe by Admin {self.admin_id} for Recipe {self.recipe_id}>'
-    def serialize(self):
-        return {
-            "id": self.id,
-            "admin_id": self.admin_id,
-            "admin_email": self.admin.email,
-            "recipe_id": self.recipe_id,
-            "recipe_title": self.recipe.title
-        }

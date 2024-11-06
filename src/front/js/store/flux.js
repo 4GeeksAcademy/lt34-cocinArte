@@ -1,5 +1,3 @@
-import { jwtDecode } from "jwt-decode";
-
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
@@ -21,8 +19,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 			favoritos:[],
 			Comments:[],
 			authadmin:false,
-			admin: null, // Almacena el `admin_id`
-
 		},
 		actions: {
 
@@ -108,28 +104,19 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 			
 			adminLogin: async (formData) => {
-				try {
-					const resp = await fetch(process.env.BACKEND_URL + '/api/administrador/login', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify(formData)
-					});
-
-					if (resp.ok) {
-						const data = await resp.json();
-						const decoded = jwtDecode(data.access_token); // Decodificar el token
-						const adminId = decoded.sub; // Obtener `admin_id` desde el token
-
-						// Guardar el `admin_id` en el store
-						setStore({ authadmin: true, admin: { id: adminId } });
-						localStorage.setItem('token', data.access_token);
-						console.log('token de admin guardado en LocalStorage');
-					} else {
-						console.error('No se pudo iniciar sesión como administrador');
-					}
-				} catch (error) {
-					console.error("Error durante el inicio de sesión del administrador:", error);
-				}
+				
+				const resp = await fetch(process.env.BACKEND_URL + '/api/administrador/login',{
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify(formData)
+					})
+				if(resp.ok){
+					const data = await resp.json()
+					console.log(('Te has logueado'), data);
+					setStore({ authadmin: true })
+					localStorage.setItem('token', data.access_token)
+            		console.log('token de admin guardado en LocalStorage ')
+				} else console.log('No has podido loguearte, revisa tus credenciales');
 			},
 
 			loadFavs: () => {

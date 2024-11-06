@@ -34,8 +34,6 @@ import { SearchByTitle } from "./component/searchByTitle.jsx";
 import { CreateUser } from "./component/singup.jsx";
 import { ViewRecipeApi } from "./component/viewRecipesApi.jsx";
 import { Sidebar } from "./component/sidebar.jsx";
-import { RecomendedRecipe } from "./component/recomendedrecipe.js";
-import { AdminRecommendedRecipes } from "./component/adminrecomendedrecipe.js";
 
 
 //create your first component
@@ -75,8 +73,6 @@ const Layout = () => {
                         <Route element={<SearchByTitle />} path="/search"/>
                         <Route element={<CreateUser />} path="/singup"/>
                         <Route element={<ViewRecipeApi />} path="/recipe/api/:id"/>
-                        <Route element={<RecomendedRecipe />} path="/recomended/recipe"/>
-                        <Route element={<AdminRecommendedRecipes />} path="/admin/recomended/recipe"/>
                        
 
                         <Route element={<h1>Not found!</h1>} />

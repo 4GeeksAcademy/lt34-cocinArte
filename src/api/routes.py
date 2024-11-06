@@ -2,8 +2,13 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Recipe, Administrador, Comment, Category, Favorito, Calificacion,RecommendedRecipe
-from api.models import db, User, recipe_categories
+from api.models import db, User, Recipe
+from api.models import db, User, Administrador
+from api.models import db, User, User, Comment
+from api.models import db, User, Administrador, Category, recipe_categories
+from api.models import db, User, User
+from api.models import db, User, Favorito
+from api.models import db, User, Calificacion
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from werkzeug.security import check_password_hash
@@ -334,12 +339,10 @@ def login_admin():
     admin = Administrador.query.filter_by(email=email).first()
 
     if admin and admin.password == password:
-        # Crear el token solo con `admin.id`
         access_token = create_access_token(identity=admin.id)
-        return jsonify({"message": "Se logueó correctamente!", "access_token": access_token}), 200
+        return jsonify('Se logueo correctamente!', access_token), 200
     else:
-        return jsonify({"message": "Hubo un error en las credenciales"}), 401
-
+        return jsonify('Hubo un error en las credenciales'), 401
     
 @api.route('/comentario', methods=['GET'])
 def get_comentarios():
@@ -605,54 +608,4 @@ def obtener_promedio_calificacion(recipe_id):
     promedio = sum([cal.qualification for cal in calificaciones]) / len(calificaciones)
     return jsonify({"recipe_id": recipe_id, "promedio": round(promedio, 2)}), 200
 
-@api.route('/recommendations/add', methods=['POST'])
-def add_recommended_recipe():
-    data = request.get_json()
-    admin_id = data.get('admin_id')
-    recipe_id = data.get('recipe_id')
 
-    # Validar que admin_id y recipe_id existan en la base de datos
-    admin = Administrador.query.get(admin_id)
-    recipe = Recipe.query.get(recipe_id)
-    if not admin or not recipe:
-        return jsonify({"error": "Invalid admin_id or recipe_id"}), 400
-
-    # Crear la recomendación si la validación es correcta
-    recommended_recipe = RecommendedRecipe(admin_id=admin_id, recipe_id=recipe_id)
-    db.session.add(recommended_recipe)
-    db.session.commit()
-
-    return jsonify(recommended_recipe.serialize()), 201
-
-
-@api.route('/recommendations', methods=['GET'])
-def get_all_recommended_recipes():
-    recommended_recipes = RecommendedRecipe.query.all()
-    return jsonify([recipe.serialize() for recipe in recommended_recipes]), 200
-
-
-@api.route('/recommendations/<int:id>', methods=['GET'])
-def get_recommended_recipe(id):
-    recommended_recipe = RecommendedRecipe.query.get(id)
-    if not recommended_recipe:
-        return jsonify({"error": "Recommended recipe not found"}), 404
-
-    return jsonify(recommended_recipe.serialize()), 200
-
-
-@api.route('/recommendations/delete', methods=['DELETE'])
-def delete_all_recommended_recipes():
-    RecommendedRecipe.query.delete()
-    db.session.commit()
-    return jsonify({"message": "All recommended recipes deleted"}), 200
-
-
-@api.route('/recommendations/<int:id>', methods=['DELETE'])
-def delete_recommended_recipe(id):
-    recommended_recipe = RecommendedRecipe.query.get(id)
-    if not recommended_recipe:
-        return jsonify({"error": "Recommended recipe not found"}), 404
-
-    db.session.delete(recommended_recipe)
-    db.session.commit()
-    return jsonify({"message": "Recommended recipe deleted"}), 200
